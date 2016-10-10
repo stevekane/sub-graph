@@ -35,13 +35,13 @@ function leavesWhere<T> (f: (t: T) => boolean, m: Module<T>): T[] {
   return m.reduce((l, em) => l.concat(em.leaves.filter(f)), [] as T[])
 }
 
-function connectionsFor (uuid: UUID, m: Module<IScene>): UUID[] {
-  return m.reduce((l, em) => l.concat(em.connections.has(uuid) ? em.connections.get(uuid) as UUID : []), [] as UUID[])
+function connectionFor<T> (uuid: UUID, t: Traversal<T>): UUID | null {
+  return t.reduce((l, em) => l || em.connections.get(uuid) || null, null as UUID | null)
 }
 
 function findNext (uuid: UUID, m: Module<IScene>): IScene | null {
   const traversal = traversalTo(l => l.uuid == uuid, m)
-  const nextUUID = connectionsFor(uuid, m)[0]
+  const nextUUID = connectionFor(uuid, traversal)
 
   return nextUUID ? leavesWhere(s => s.uuid == nextUUID, m)[0] : null
 }
